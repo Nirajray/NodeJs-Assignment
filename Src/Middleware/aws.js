@@ -1,13 +1,9 @@
 const aws = require("aws-sdk")
+const obj=require("../credentials")
 
 
-
-aws.config.update({
-
-    accessKeyId: "AKIAY3L35MCRUJ6WPO6J",
-    secretAccessKey: "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",
-    region: "ap-south-1"
-})
+// 
+aws.config.update(obj.obj)
 
 let uploadFile = async(file) => {
     return new Promise(function(resolve, reject) {
@@ -17,7 +13,7 @@ let uploadFile = async(file) => {
         var uploadParams = {
             ACL: "public-read",//readable publically acess
             Bucket: "classroom-training-bucket", //HERE folder as a bucket
-            Key: "project/" + file.originalname, //HERE  
+            Key: "NodejsAssignment/" + file.originalname, //HERE  
             Body: file.buffer//
         }
 

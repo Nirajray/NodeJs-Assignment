@@ -1,40 +1,39 @@
-const userModel = require("../Model/userModel")
+// importing aws to upload file 
 const aws = require("../Middleware/aws")
 
 const uploadimage = async function (req, res) {
     try {
 
-        let userId = req.params.id;
-
-        if (!userId) {
-            return res.status(400).send({ status: false, message: "userid required" })
-        }
-
-        let userExist = await userModel.findOne({ _id: userId })
-        if (!userExist) {
-            return res.status(404).send({ status: false, message: "Invalid user" })
-
-        }
+        // accessing file ==//
         let files = req.files;
+
+        // Defining size limit of image==//
         let limitSize = 512000;
-        console.log(files)
+ 
+        // checking the file is present or not==//
         if (req.files.length === 0) {
             return res.status(400).send({ status: false, message: "Provide image to upload" })
         }
 
+        // conditional to check image size limit==//
         if (files[0].size > limitSize) {
             return res.status(400).send({ status: false, message: "Image is too large" })
 
         }
 
+        // checking type of file is valid or not==//
         if (files[0].mimetype == 'image/png' || files[0].mimetype == 'image/jpeg') {
 
 
             //upload filse in aws s3
-            var uploadImage = await aws.uploadFile(files[0]);
+            let uploadImage = await aws.uploadFile(files[0]);
             let uploadData = uploadImage
+
+            // Sending response to the user
             return res.status(200).send({ status: true, message: "Upload image successfully", data: uploadData })
         }
+
+        // if the image type is not in the given format==//
         else {
             return res.status(400).send({ status: false, message: "image should be in jpeg or jpg and png" })
 

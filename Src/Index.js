@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose")
  const multer =require("multer")
 const route = require("./route/routes");
+const mongoDb= require("../Src/credentials")
 // const fileUpload = require("express-fileupload")
 const app = express();
 
@@ -11,7 +12,7 @@ app.use(express.json());
 // }))
 app.use( multer().any())
 
-mongoose.connect('mongodb+srv://Nirajkumar:2gkjm25Aa8wh01yS@cluster0.kzih8.mongodb.net/NodeJsAssignment?authSource=admin&replicaSet=atlas-11shqf-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true', {
+mongoose.connect(mongoDb.mongoDbUri, {
     useNewUrlParser: true
 })
 .then( () => console.log("MongoDb is connected"))

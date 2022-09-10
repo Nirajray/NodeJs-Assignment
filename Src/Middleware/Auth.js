@@ -1,21 +1,67 @@
-const jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");  // Importing jwt because we are decoding token==//
+const userModel = require("../Model/userModel");// For performing operation on the db.==//
+const mongoose = require("mongoose");
 
-const authentication = function ( req, res, next) {
-    try{
-        let token = (req.headers["x-user-key"]); 
+// Defining function to validate objectId ==
+const isValidObjectId = function (objectId) {
+    return mongoose.Types.ObjectId.isValid(objectId)
+}
 
-        if(!token){
-            return res.status(400).send({status:false, message: "Token must be present...!"});
+const authentication = function (req, res, next) {
+    try {
+        // accessing token from headers==//
+        let token = req.headers["x-user-key"];
+
+        // Checking user token is present==//
+        if (!token) {
+            return res.status(400).send({ status: false, message: "Token is required..!" });
         }
 
-        let decodedToken = jwt.verify(token, 'FunctionUp Group21');
+        // Decoding token that is coming from the request header..=//
+        jwt.verify(token, 'Somesecure@$65!**', function (err, decoded) {
+            if (err)
+                return res.status(400).send({ status: false, message: "invalid token " });
 
-        if (!decodedToken){
-            return res.status(400).send({ status: false, message: "Token is invalid"});
+            let userLoggedIn = decoded.userId;
+
+            // Inserting userid in request after decoding to make it ease to access==//
+            req["userId"] = userLoggedIn;
+
+            // Passing flow to next function//
+            next();
+        })
+
+    }
+    catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+}
+
+const authorization = async function (req, res, next) {
+
+    try {
+
+        let userId = req.params.id;
+      // accessing userid from request==//
+        let id = req.userId;
+
+        // validating userId==//
+        if (!isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "Please enter valid userId" })
         }
-          
-        let userLoggedIn = decodedToken.userId;
-        req["userId"] = userLoggedIn;
+
+        // Checking user is present or not==//
+        let user = await userModel.findOne({ _id: userId });
+        if (!user) {
+            return res.status(404).send({ status: false, message: "No such user exist" })
+        }
+
+        // Authorizing user that token userid and param userId is same or not==// 
+        if (id != user._id) {
+            return res.status(403).send({ status: false, message: "Not authorized..!" });
+        }
+
+        // passing flow to the next function==//
         next();
     }
     catch (error) {
@@ -23,4 +69,6 @@ const authentication = function ( req, res, next) {
     }
 }
 
-module.exports = {authentication}
+
+
+module.exports = { authentication, authorization }

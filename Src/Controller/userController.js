@@ -1,7 +1,14 @@
+// To perform crud operation==/
 const userModel = require("../Model/userModel");
+
+// For encrypting password
 const bcrypt = require("bcrypt")
+
+// Using to send token to the user==/
 const jwt = require("jsonwebtoken")
 
+
+// Using to validate request parameters by calling this function==//
 const isValid = function (value) {
     if (typeof value == undefined || value == null) return false
     if (typeof value === 'string' && value.trim().length === 0) return false
@@ -15,18 +22,20 @@ const registerUser = async function (req, res) {
 
         const body = req.body;
 
+        // checking body is empty or not==//
         if (Object.keys(body).length === 0) {
             return res.status(400).send({ status: false, message: "Body can not be empty" })
         }
 
+        // Object Destructuring==//
         const { name, email, password } = body;
 
-
+        // validating name field==//
         if (!isValid(name)) {
             return res.status(400).send({ status: false, message: "Please enter valid name" })
         }
 
-       
+        // Validating email==//
         if (!isValid(email)) {
             return res.status(400).send({ status: false, message: "Please enter valid email" })
 
@@ -36,33 +45,37 @@ const registerUser = async function (req, res) {
             return res.status(400).send({ status: false, message: ' Email should be a valid' })
         }
 
-        // Email is Unique...
+        // Email is Unique or not ==//
         let duplicateEmail = await userModel.findOne({ email: body.email })
         if (duplicateEmail) {
             return res.status(400).send({ status: false, msg: 'Email already exist' })
         };
 
-
+        // Password is entered or not==//
         if (!isValid(password)) {
             return res.status(400).send({ status: false, message: "Please enter valid password" })
 
         }
 
-        let Passwordregex = /^[A-Z0-9a-z]{1}[A-Za-z0-9.@#$&]{7,14}$/
+        // password in between 5-20 range==//
+        let Passwordregex = /^[A-Z0-9a-z]{5,20}$/
         if (!Passwordregex.test(password)) {
-            return res.status(400).send({ Status: false, message: " Please enter a valid password, minlength 8, maxxlength 15" })
+            return res.status(400).send({ Status: false, message: " Please enter a valid password with number and letters and password length 5 to 20" })
         }
 
         //generate salt to hash password
         const salt = await bcrypt.genSalt(10);
         // now we set user password to hashed password
         passwordValue = await bcrypt.hash(password, salt);
-          
+
+        // creating object to putiing valid value in each field==//
         let filterBody = {
-            name:name,
-            email:email,
-            password:passwordValue
+            name: name,
+            email: email,
+            password: passwordValue
         }
+
+        // Creating new user==//
         let createUser = await userModel.create(filterBody)
         return res.status(201).send({ status: true, message: "User created Successfully", data: createUser })
     }
@@ -72,54 +85,55 @@ const registerUser = async function (req, res) {
     }
 }
 
+
+
 const loginUser = async function (req, res) {
     try {
 
         let body = req.body
 
+        //Checking body is 
         if (Object.keys(body).length === 0) {
             return res.status(400).send({ Status: false, message: " Sorry Body can't be empty" })
         }
+        // Object destructing==//
+        const { email, password } = body
 
-        //****------------------- Email validation -------------------****** //
-
-        if (!isValid(body.email)) {
+        //Email validation ==//
+        if (!isValid(email)) {
             return res.status(400).send({ status: false, msg: "Email is required" })
         };
 
-        // For a Valid Email...
-        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(body.email))) {
+        // For Valid Email...
+        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
             return res.status(400).send({ status: false, message: ' Email should be a valid' })
         };
 
 
-        //******------------------- password validation -------------------****** //
-
-        if (!isValid(body.password)) {
+        // password validation//
+        if (!isValid(password)) {
             return res.status(400).send({ Status: false, message: " password is required" })
         }
 
-        //******------------------- checking User Detail -------------------****** //
+        //checking User Detail //
+        let checkUser = await userModel.findOne({ email: email });
 
-
-        let checkUser = await userModel.findOne({ email: body.email });
-
+        //email is correct or not
         if (!checkUser) {
             return res.status(401).send({ Status: false, message: "email is not correct" });
         }
 
-        let passwordMatch = await bcrypt.compare(body.password, checkUser.password)
+        let passwordMatch = await bcrypt.compare(password, checkUser.password)
         if (!passwordMatch) {
             return res.status(401).send({ status: false, msg: "incorect password" })
         }
 
-        //-- generating token for user 
+        //-generating token for user 
         let userToken = jwt.sign({
-
-            userId: checkUser._id,
+            userId: checkUser._id,  // Payload of toekn
             batch: "Uranium"
 
-        }, 'FunctionUp Group21', { expiresIn: '86400s' }); // token expiry for 24hrs
+        }, 'Somesecure@$65!**', { expiresIn: '86400s' }); // token expiry for 24hrs
 
         return res.status(200).send({ status: true, message: "User login successfull", data: { userId: checkUser._id, token: userToken } });
 
