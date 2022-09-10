@@ -1,5 +1,6 @@
 // importing aws to upload file 
 const aws = require("../Middleware/aws")
+const userUploadModel= require("../Model/userUploadModel")
 
 const uploadimage = async function (req, res) {
     try {
@@ -27,10 +28,14 @@ const uploadimage = async function (req, res) {
 
             //upload filse in aws s3
             let uploadImage = await aws.uploadFile(files[0]);
-            let uploadData = uploadImage
+            let filterBody ={
+                userId:req.userId,
+                image:uploadImage
+            }
 
             // Sending response to the user
-            return res.status(200).send({ status: true, message: "Upload image successfully", data: uploadData })
+            let upload = await userUploadModel.create(filterBody)
+            return res.status(200).send({ status: true, message: "Upload image successfully", data: upload})
         }
 
         // if the image type is not in the given format==//

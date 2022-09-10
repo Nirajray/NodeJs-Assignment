@@ -30,8 +30,13 @@ const registerUser = async function (req, res) {
         // Object Destructuring==//
         const { name, email, password } = body;
 
+        var regex = /^[a-zA-Z ]*$/
         // validating name field==//
         if (!isValid(name)) {
+            return res.status(400).send({ status: false, message: "Please enter valid name" })
+        }
+
+        if (!regex.test(name)) {
             return res.status(400).send({ status: false, message: "Please enter valid name" })
         }
 
@@ -41,12 +46,12 @@ const registerUser = async function (req, res) {
 
         }
 
-        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(body.email))) {
+        if (!(/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))) {
             return res.status(400).send({ status: false, message: ' Email should be a valid' })
         }
 
         // Email is Unique or not ==//
-        let duplicateEmail = await userModel.findOne({ email: body.email })
+        let duplicateEmail = await userModel.findOne({ email:email })
         if (duplicateEmail) {
             return res.status(400).send({ status: false, msg: 'Email already exist' })
         };
@@ -57,10 +62,9 @@ const registerUser = async function (req, res) {
 
         }
 
-        // password in between 5-20 range==//
-        let Passwordregex = /^[A-Z0-9a-z]{5,20}$/
-        if (!Passwordregex.test(password)) {
-            return res.status(400).send({ Status: false, message: " Please enter a valid password with number and letters and password length 5 to 20" })
+       
+        if (!(password.trim().length >= 8 && password.trim().length <= 20)){
+            return res.status(400).send({ Status: false, message: " Please enter a valid password length must in between 8 to 20" })
         }
 
         //generate salt to hash password
