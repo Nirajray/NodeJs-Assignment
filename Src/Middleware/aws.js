@@ -1,5 +1,5 @@
 const aws = require("aws-sdk")
-const obj=require("../credentials")
+const obj=require("../Passedvalue")
 
 
 // 
