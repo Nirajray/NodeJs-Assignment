@@ -9,6 +9,6 @@ router.post("/users", userController.registerUser);
 // For login User==//
 router.post("/login", userController.loginUser);
 // For uploading images==//
-router.post("/imageUpload/:id", mid.authentication, mid.authorization, imageUpload.uploadimage);
+router.post("/imageUpload/:userId", mid.authentication, mid.authorization, imageUpload.uploadimage);
 
 module.exports=router;

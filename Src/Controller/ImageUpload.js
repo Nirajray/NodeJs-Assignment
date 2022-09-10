@@ -30,12 +30,12 @@ const uploadimage = async function (req, res) {
             let uploadImage = await aws.uploadFile(files[0]);
             let filterBody ={
                 userId:req.userId,
-                image:uploadImage
+                image:uploadImage 
             }
 
             // Sending response to the user
             let upload = await userUploadModel.create(filterBody)
-            return res.status(200).send({ status: true, message: "Upload image successfully", data: upload})
+            return res.status(200).send({ status: true, message: "Uploaded image successfully", data: upload})
         }
 
         // if the image type is not in the given format==//

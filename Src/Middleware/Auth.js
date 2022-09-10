@@ -41,26 +41,28 @@ const authorization = async function (req, res, next) {
 
     try {
 
-        let userId = req.params.id;
+        let userid = req.params.userId;
+       console.log(typeof userid)
       // accessing userid from request==//
         let id = req.userId;
-
+        console.log(typeof id)
         // validating userId==//
-        if (!isValidObjectId(userId)) {
+        if (!isValidObjectId(userid)) {
             return res.status(400).send({ status: false, message: "Please enter valid userId" })
         }
+    
 
         // Checking user is present or not==//
-        let user = await userModel.findOne({ _id: userId });
+        let user = await userModel.findOne({ _id: userid });
         if (!user) {
             return res.status(404).send({ status: false, message: "No such user exist" })
         }
-
+    
         // Authorizing user that token userid and param userId is same or not==// 
         if (id != user._id) {
             return res.status(403).send({ status: false, message: "Not authorized..!" });
         }
-
+    
         // passing flow to the next function==//
         next();
     }
