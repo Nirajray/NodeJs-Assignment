@@ -42,10 +42,8 @@ const authorization = async function (req, res, next) {
     try {
 
         let userid = req.params.userId;
-       console.log(typeof userid)
       // accessing userid from request==//
         let id = req.userId;
-        console.log(typeof id)
         // validating userId==//
         if (!isValidObjectId(userid)) {
             return res.status(400).send({ status: false, message: "Please enter valid userId" })

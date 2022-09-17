@@ -5,7 +5,7 @@ const userModel = require("../Model/userModel");
 const bcrypt = require("bcrypt")
 
 // Using to send token to the user==/
-const jwt = require("jsonwebtoken")
+const jwt = require("jsonwebtoken");
 
 
 // Using to validate request parameters by calling this function==//
@@ -148,6 +148,4 @@ const loginUser = async function (req, res) {
     }
 }
 
-
 module.exports = { registerUser, loginUser }
-
